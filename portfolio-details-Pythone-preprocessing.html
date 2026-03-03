@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 2 - Marketing Campaign Data Analysis: Affinity-Card Prediction, Predictive Application and User Interface </title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/img/F_logo.png">
+    <link rel="shortcut icon" href="assets/img/F_logo.png" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <style>
+        /* ===== CSS VARIABLES ===== */
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --dark: #0f172a;
+            --darker: #020617;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #e2e8f0;
+            
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 50px -12px rgba(0, 0, 0, 0.25);
+            
+            --transition-smooth: all 0.3s ease;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-full: 9999px;
+        }
+        
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth;
+            height: 100%;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        /* ===== MAIN LAYOUT ===== */
+        .portfolio-container {
+            min-height: 100vh;
+            border-left: 20px solid var(--dark);
+            border-right: 20px solid var(--dark);
+            background: rgba(15, 23, 42, 0.8);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .portfolio-container::before,
+        .portfolio-container::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            width: 20px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--primary), transparent);
+            z-index: 1000;
+            opacity: 0.2;
+        }
+        
+        .portfolio-container::before { left: 0; }
+        .portfolio-container::after { right: 0; }
+        
+        /* ===== COMPACT HEADER ===== */
+        .compact-header {
+            padding: 15px 30px;
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+        
+        /* Home Button Only */
+        .home-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 18px;
+            border-radius: var(--radius-full);
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            transition: var(--transition-smooth);
+        }
+        
+        .home-button:hover {
+            background: rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        /* Two-Line Title */
+        .page-title-compact {
+            flex: 1;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .page-title-compact h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--light);
+            margin-bottom: 4px;
+        }
+        
+        .page-title-compact .subtitle {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+        
+        /* Empty Space for Balance */
+        .header-balance {
+            width: 120px;
+        }
+        
+        /* ===== MAIN CONTENT ===== */
+        .main-content-wrapper {
+            padding: 20px 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        /* Two Column Layout */
+        .two-column-wrapper {
+            display: flex;
+            gap: 20px;
+            height: calc(100vh - 230px);
+            min-height: 500px;
+            flex: 1;
+        }
+        
+        /* Left Column - Images - UPDATED FOR FULL IMAGES */
+        .images-column {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow: auto;
+        }
+        
+        .image-display {
+            flex: 1;
+            background: var(--glass-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--glass-border);
+            overflow: auto;
+            position: relative;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+        }
+        
+        .image-display:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .project-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.4s ease;
+            display: block;
+        }
+        
+        .image-display:hover .project-image {
+            transform: scale(1.03);
+        }
+        
+        /* Right Column - Content */
+        .content-column {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        /* Compact URL Bar */
+        .compact-url {
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: var(--radius-lg);
+            padding: 15px 20px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition-smooth);
+            height: 65px;
+            flex-shrink: 0;
+        }
+        
+        .compact-url:hover {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: var(--primary);
+        }
+        
+        .url-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--light);
+            white-space: nowrap;
+        }
+        
+        .url-label i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        
+        .url-display {
+            flex: 1;
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            transition: var(--transition-smooth);
+        }
+        
+        .url-display:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary);
+        }
+        
+        /* Description Box - Same as Before */
+        .description-container {
+            flex: 1;
+            background: var(--glass-bg);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .description-title {
+            padding: 20px 25px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), transparent);
+            border-bottom: 1px solid var(--glass-border);
+            flex-shrink: 0;
+        }
+        
+        .description-title h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--light);
+        }
+        
+        .description-content {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            background: rgba(15, 23, 42, 0.3);
+        }
+        
+        .description-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .description-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-full);
+        }
+        
+        .description-content::-webkit-scrollbar-thumb {
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+        }
+        
+        /* Paragraph Styles - with text-align: justify */
+        .para-1 {
+            font-size: 1.1rem;
+            color: #e2e8f0;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(16, 185, 129, 0.05);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--secondary);
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -ms-hyphens: auto;
+        }
+        
+        .para-2 {
+            font-size: 1rem;
+            color: #cbd5e1;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--primary);
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -ms-hyphens: auto;
+        }
+        
+        .para-3 {
+            font-size: 1rem;
+            color: #f8fafc;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(239, 68, 68, 0.05);
+            border-radius: var(--radius-md);
+            border-left: 4px solid #ef4444;
+            font-style: italic;
+            text-align: justify;
+            hyphens: auto;
+            -webkit-hyphens: auto;
+            -ms-hyphens: auto;
+        }
+        
+        .para-1 strong,
+        .para-2 strong,
+        .para-3 strong {
+            color: var(--light);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            text-align: left;
+        }
+        
+        /* ===== COMPACT FOOTER - FIXED AT BOTTOM ===== */
+        .compact-footer {
+            background: rgba(15, 23, 42, 0.95);
+            padding: 12px 30px;
+            border-top: 1px solid rgba(99, 102, 241, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            min-height: 50px;
+            flex-shrink: 0;
+            position: sticky;
+            bottom: 0;
+            width: 100%;
+            z-index: 100;
+            margin-top: auto;
+        }
+        
+        .footer-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .footer-name {
+            font-weight: 600;
+            color: var(--light);
+            font-size: 1rem;
+        }
+        
+        .footer-title {
+            color: var(--gray);
+            font-size: 0.85rem;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+        }
+        
+        .footer-links {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .footer-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 0.85rem;
+            transition: var(--transition-smooth);
+        }
+        
+        .footer-link.linkedin {
+            background: rgba(10, 102, 194, 0.2);
+            border: 1px solid rgba(10, 102, 194, 0.3);
+        }
+        
+        .footer-link.email {
+            background: rgba(220, 38, 38, 0.2);
+            border: 1px solid rgba(220, 38, 38, 0.3);
+        }
+        
+        .footer-link:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 1200px) {
+            .two-column-wrapper {
+                height: auto;
+                min-height: auto;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .portfolio-container {
+                border-left: 15px solid var(--dark);
+                border-right: 15px solid var(--dark);
+            }
+            
+            .portfolio-container::before,
+            .portfolio-container::after {
+                width: 15px;
+            }
+            
+            .compact-header,
+            .main-content-wrapper,
+            .compact-footer {
+                padding: 15px 20px;
+            }
+            
+            .two-column-wrapper {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .images-column {
+                height: 500px;
+            }
+            
+            .two-column-wrapper {
+                height: calc(100vh - 210px);
+            }
+            
+            .image-display {
+                min-height: 200px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .compact-header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+                padding: 15px;
+            }
+            
+            .header-balance {
+                display: none;
+            }
+            
+            .home-button {
+                order: 1;
+            }
+            
+            .page-title-compact {
+                order: 2;
+            }
+            
+            .page-title-compact h1 {
+                font-size: 1.5rem;
+            }
+            
+            .compact-url {
+                flex-direction: column;
+                height: auto;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .url-label {
+                justify-content: center;
+            }
+            
+            .url-display {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .compact-footer {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+                position: relative;
+                bottom: auto;
+                padding: 15px;
+            }
+            
+            .footer-info {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .two-column-wrapper {
+                height: auto;
+                min-height: auto;
+            }
+            
+            .images-column {
+                height: 450px;
+            }
+            
+            .image-display {
+                min-height: 180px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .portfolio-container {
+                border-left: 10px solid var(--dark);
+                border-right: 10px solid var(--dark);
+            }
+            
+            .portfolio-container::before,
+            .portfolio-container::after {
+                width: 10px;
+            }
+            
+            .compact-header,
+            .main-content-wrapper,
+            .compact-footer {
+                padding: 12px 15px;
+            }
+            
+            .description-content {
+                padding: 15px;
+            }
+            
+            .para-1,
+            .para-2,
+            .para-3 {
+                padding: 15px;
+                font-size: 0.95rem;
+            }
+            
+            .description-title h2 {
+                font-size: 1.5rem;
+            }
+            
+            .images-column {
+                height: 400px;
+            }
+            
+            .image-display {
+                min-height: 150px;
+            }
+        }
+        
+        /* For very small screens */
+        @media (max-height: 700px) {
+            .two-column-wrapper {
+                height: auto;
+                min-height: 400px;
+            }
+            
+            .compact-footer {
+                position: relative;
+                bottom: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Portfolio Container -->
+    <div class="portfolio-container">
+        
+        <!-- Compact Header -->
+        <header class="compact-header">
+            <!-- Home Button Only -->
+            <a href="index.html" class="home-button">
+                <i class="bi bi-house-door"></i>
+                <span>Home</span>
+            </a>
+            
+            <!-- Two-Line Title -->
+            <div class="page-title-compact">
+                <h1>Marketing Campaign Data Analysis: Affinity-Card Prediction, Predictive Application and User Interface</h1>
+                <div class="subtitle">(Python)</div>
+            </div>
+            
+            <!-- Balance Space -->
+            <div class="header-balance"></div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main-content-wrapper">
+            <div class="two-column-wrapper">
+                
+                <!-- Left Column: Images -->
+                <div class="images-column">
+                    <div class="image-display">
+                        <img src="assets/img/portfolio/Python/MetaData_Table.png" class="project-image" alt="SuperStore Sales Dashboard - All Years">
+                    </div>
+                    
+                    <div class="image-display">
+                        <img src="assets/img/portfolio/Python/Performance_Mat.png" class="project-image" alt="SuperStore Sales Dashboard - 2020">
+                    </div>
+                </div>
+                
+                <!-- Right Column: Content -->
+                <div class="content-column">
+                    <!-- Compact URL Bar -->
+                    <div class="compact-url">
+                        <div class="url-label">
+                            <i class="bi bi-link-45deg"></i>
+                            <span>Project URL:</span>
+                        </div>
+                        <a href="https://github.com/Fahim-Hossain-Data/Python-Customer-Affinity-Card-Prediction-Data-Preprocessing-Modeling-and-Deployment" target="_blank" class="url-display">
+                           https://github.com/Fahim-Hossain-Data/Python
+                        </a>
+                    </div>
+                    
+                    <!-- Description Box - Corrected Content -->
+                    <div class="description-container">
+                        <div class="description-title">
+                            <h2>Project details</h2>
+                        </div>
+                        
+                        <div class="description-content">
+                            <p class="para-1">
+                                <strong>🖥️ Introduction</strong>
+                                This project demonstrates an end-to-end data analytics workflow focused on predictive modeling and business insights. It combines feature engineering, sentiment analysis, and logistic regression to identify key drivers of customer behavior. A user-friendly application was developed to provide real-time predictions, showcasing practical skills in Python, data visualization, and applied machine learning.
+                            </p>
+                            
+                            <p class="para-2">
+                                <strong>🛠️ Key Libraries & Skills</strong>
+                                • Data Manipulation & Analysis: pandas, numpy — Data cleaning and transformation<br>
+                                • Data Visualization: matplotlib, seaborn — visualization<br>
+                                • Machine Learning: scikit-learn (LogisticRegression, train_test_split, StandardScaler, accuracy_score, confusion_matrix) — Model building, evaluation, and prediction<br>
+                                • Natural Language Processing: TextBlob — Sentiment analysis<br>
+                                • Interactive Applications: ipywidgets, IPython.display — User interface for the interactive prediction application<br>
+                                • File Handling: Core Python modules (io, base64) — Uploading and processing
+                            </p>
+                            
+                            <p class="para-3">
+                                <strong>📌 Key Findings</strong>
+                                • Constructed a predictive logistic regression model with a sample size of 1,500 records of customers to predict affinity card users on the 10 correlated features that are on the top.<br>
+                                • Cleaned and processed data with pandas and NumPy, conducted correlation analysis, performed sentiments analysis with TextBlob, and created predictive models with scikit-learn.<br>
+                                • Achieved 79% test accuracy with logistic regression and developed a visual user-friendly predictive tool to guide the real-time affinity card prediction with the support of manual input or CSV upload.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Compact Footer - ALWAYS AT BOTTOM -->
+        <footer class="compact-footer">
+            <div class="footer-info">
+                <span class="footer-name">Md Fahim Hossain</span>
+                <span class="footer-title">Data Analyst</span>
+            </div>
+            
+            <div class="footer-links">
+                <a href="https://www.linkedin.com/in/md-fahim-hossain-b51258227/" 
+                   target="_blank"
+                   class="footer-link linkedin">
+                    <i class="bi bi-linkedin"></i>
+                    <span>LinkedIn</span>
+                </a>
+                
+                <a href="mailto:fahimhossain0729@gmail.com" 
+                   class="footer-link email">
+                    <i class="bi bi-envelope-fill"></i>
+                    <span>Email</span>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Simple JavaScript for Interactions -->
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Add hover effect to images
+        document.querySelectorAll('.image-display').forEach(image => {
+            image.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+            
+            image.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Ensure footer stays at bottom on page load
+        window.addEventListener('load', function() {
+            const portfolioContainer = document.querySelector('.portfolio-container');
+            const mainContent = document.querySelector('.main-content-wrapper');
+            const footer = document.querySelector('.compact-footer');
+            
+            // Check if content is shorter than viewport
+            const contentHeight = portfolioContainer.offsetHeight;
+            const windowHeight = window.innerHeight;
+            
+            if (contentHeight < windowHeight) {
+                footer.style.position = 'absolute';
+                footer.style.bottom = '0';
+            } else {
+                footer.style.position = 'sticky';
+            }
+        });
+    </script>
+</body>
+</html>
